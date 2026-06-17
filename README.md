@@ -1,147 +1,54 @@
-# 🛒 M.V. Billing System — Enterprise POS
+# M.V. Billing System: Enterprise Dual-Shop POS & Real-Time Analytics
 
-> A full-stack, dual-shop Point of Sale (POS) and inventory management system built specifically for the Indian retail market. Engineered with Python and Django, this system digitizes physical ledger workflows, handles complex automated tax calculations, and provides live business analytics.
-
----
-
-## 🚀 Key Features
-
-### 🏪 Dual-Shop Architecture
-Distinct point-of-sale interfaces for two different retail environments — **Paint** and **Electricals** — running on a single unified backend.
-
-### 🧾 Automated GST Tax Engine
-An intelligent **inclusive tax** mathematical engine that automatically extracts and splits **CGST/SGST** based on government-mandated HSN codes — no manual entry required.
-
-### 📊 Live Analytics Command Center
-A real-time dashboard leveraging **Django ORM aggregation** to track:
-- Daily revenue
-- Invoice volume
-- Low-stock threshold alerts
-
-### 🔐 Enterprise-Grade Security
-Implements strict **session timeouts** and **RAM-based session caching** to prevent unauthorized access in a physical retail environment.
-
-### 💻 Zero-Cost Local Kiosk Deployment
-Custom **Windows Batch scripting** for a 1-click "App Mode" launch, paired with automated, invisible **cloud database syncing** via Google Drive.
+A production-ready, full-stack Point of Sale (POS) and inventory management application engineered using Python and Django. This system digitizes and automates manual ledger workflows for a high-volume retail environment managing two distinct business operations under one unified platform.
 
 ---
 
-## 🛠️ Tech Stack
+## 🚀 Key Architectural Features
 
-| Layer | Technology |
-|---|---|
-| Backend | Python, Django, SQLite |
-| Frontend | HTML5, CSS3, JavaScript, Bootstrap 5 |
-| Deployment | Windows Batch Scripting, Google Drive Cloud Sync |
+### 1. Dual-Storefront POS Engine
+* **Color World (Paint Retail):** Implements automated Indian GST billing compliant with local commercial standards.
+* **Electricals Shop:** Provides high-velocity retail logging optimized for non-GST day-to-day transactions.
 
----
+### 2. Automated GST & Compliance Engine
+* Automatically computes base prices from inclusive retail rates using a backend mathematical extraction engine.
+* Dynamically identifies and binds products to individual **HSN codes** to calculate exact, split **CGST and SGST** values on printer-optimized tax invoices.
 
-## 📸 System Previews
+### 3. Live Metrics Analytics Dashboard
+* Leverages advanced Django ORM database aggregation (`Sum`, `F` objects) to instantly process live data.
+* Dynamically computes and displays operational KPIs: **Today's Total Combined Revenue**, **Active Customer Invoice Volume**, and **Low-Stock Critical Reorder Alerts**.
 
-> 📌 *Upload screenshots of your POS screen, the printed receipt, and the live dashboard here.*
+### 4. Bank-Grade Session Security
+* Utilizes short-lived, transient browser cookies configured with a custom 30-minute inactivity timeout.
+* Implements a RAM-backed caching session engine (`django.contrib.sessions.backends.cache`). Login sessions reside exclusively in volatile server memory, ensuring all active connections instantly terminate if the local hosting server goes offline.
 
-| POS Interface | Printed Receipt | Live Dashboard |
-|---|---|---|
-| *(screenshot)* | *(screenshot)* | *(screenshot)* |
-
----
-
-## ⚙️ Local Installation
-
-### Prerequisites
-- Python 3.8+
-- pip
-
-### Steps
-
-**1. Clone the repository**
-```bash
-git clone https://github.com/yourusername/mv-billing.git
-cd mv-billing
-```
-
-**2. Install dependencies**
-```bash
-pip install django
-```
-
-**3. Apply database migrations**
-```bash
-python manage.py migrate
-```
-
-**4. Start the development server**
-```bash
-python manage.py runserver
-```
-
-**5. Open in your browser**
-```
-http://127.0.0.1:8000
-```
+### 5. Automated Local Kiosk & Cloud Pipeline
+* Features a custom, lightweight Windows Batch execution script (`.bat`) that triggers the Django server in the background and launches Google Chrome in full-screen Application Mode (`--app`).
+* Paired with background database mirroring (`db.sqlite3`) syncing straight to the cloud for automated, zero-cost disaster recovery and near-zero RPO (Recovery Point Objective).
 
 ---
 
-## 🪟 Windows Kiosk Launch (App Mode)
+## 🛠️ Technical Stack
 
-For a 1-click launch in Chrome's App Mode (no browser UI, kiosk-style):
-
-1. Run the included `.bat` file from the project root.
-2. The script starts the Django server and opens the POS in App Mode automatically.
-3. Google Drive sync runs silently in the background to keep the SQLite database backed up to the cloud.
-
----
-
-## 📁 Project Structure
-
-```
-mv-billing/
-├── billing/              # Core Django app (models, views, templates)
-├── paint_shop/           # Paint retail POS module
-├── electrical_shop/      # Electricals retail POS module
-├── templates/            # Shared HTML templates (Bootstrap 5)
-├── static/               # CSS, JS, and assets
-├── db.sqlite3            # Local SQLite database
-├── manage.py
-├── launch.bat            # Windows 1-click kiosk launcher
-└── requirements.txt
-```
+* **Backend Engine:** Python 3, Django Framework
+* **Database Management:** SQLite3 (Local Relational Storage Architecture)
+* **Frontend UI/UX:** Bootstrap 5, Custom CSS3, Vanilla JavaScript
+* **Print Engine:** CSS Media Queries (`@media print`) optimized for A4 single-sheet layout alignment
+* **Automation Automation:** Windows Batch Scripting
 
 ---
 
-## 🧮 GST Engine — How It Works
+## 📂 Project Architecture Layout
 
-The billing engine uses the **inclusive tax back-calculation formula** to extract GST from MRP prices:
-
-```
-Tax Amount = (MRP × GST Rate) / (100 + GST Rate)
-CGST = SGST = Tax Amount / 2
-```
-
-HSN codes stored in the product database automatically determine the applicable GST slab (0%, 5%, 12%, 18%, or 28%), making the billing process fully compliant and hands-free.
-
----
-
-## 📈 Roadmap
-
-- [ ] Barcode scanner integration
-- [ ] UPI / QR payment support
-- [ ] Multi-user role management (Admin, Cashier)
-- [ ] PDF invoice generation and WhatsApp delivery
-- [ ] PostgreSQL migration for multi-device deployments
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change.
-
----
-
-## 📄 License
-
-[MIT](LICENSE)
-
----
-
-> Built with ❤️ for Indian retail businesses — bridging the gap between physical ledgers and digital efficiency.
+```text
+├── billing/
+│   ├── models.py       # Dual inventory & invoice relational database tables
+│   ├── views.py        # Core analytics math, aggregations, & transaction processors
+│   ├── urls.py         # App-level application endpoints
+│   └── templates/      # Rich HTML5 invoice matrices & metrics dashboard
+├── core/
+│   ├── settings.py     # Cache session configurations & core global constants
+│   └── urls.py         # Global routing nexus
+├── start_billing.bat   # 1-Click desktop kiosk script launch system
+├── manage.py           # Django administrative CLI gateway
+└── requirements.txt    # Application software dependencies
