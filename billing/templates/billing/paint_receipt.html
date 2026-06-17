@@ -1,0 +1,152 @@
+{% extends 'billing/base.html' %}
+{% load static %}
+
+{% block title %}Tax Invoice - {{ invoice.invoice_number }}{% endblock %}
+
+{% block styles %}
+<style>
+    /* Screen styling (looks like a piece of paper on the screen) */
+    .invoice-box {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 40px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+    
+    .invoice-header { border-bottom: 2px solid #0d6efd; padding-bottom: 15px; }
+    .table-invoice th { background-color: #f8f9fa !important; color: #333 !important; font-size: 0.9rem; }
+    .table-invoice td { font-size: 0.95rem; vertical-align: middle; }
+    .terms-box { font-size: 0.75rem; color: #6c757d; }
+    .signature-box { border-top: 1px solid #000; width: 200px; display: inline-block; margin-top: 60px; }
+
+    /* Print styling (Strips away colors and centers perfectly on A4 paper) */
+    @media print {
+        body { background-color: white !important; -webkit-print-color-adjust: exact; }
+        .invoice-box { box-shadow: none !important; border: none !important; padding: 0 !important; max-width: 100% !important; }
+        .invoice-header { border-bottom: 2px solid #000 !important; }
+        .btn, .navbar { display: none !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container text-center mb-4 d-print-none">
+    <button class="btn btn-primary btn-lg shadow-sm me-3 fw-bold px-5" onclick="window.print()">🖨️ Print Tax Invoice</button>
+    <a href="{% url 'paint_pos' %}" class="btn btn-outline-secondary btn-lg shadow-sm px-4">⬅️ Back to POS</a>
+</div>
+
+<div class="invoice-box">
+    
+    <div class="row invoice-header mb-4 align-items-center">
+        <div class="col-sm-8">
+            <h1 class="fw-bold text-primary mb-0"><span class="text-dark">🎨</span> Color World </h1>
+            <p class="mb-0 text-muted">Theni Main Road, Boothipuram, Theni, Tamil Nadu 625531</p>
+            <p class="mb-0 text-muted"><strong>Phone:</strong> +91 9789215491 | <strong>Email:</strong> billing@mvpaints.com</p>
+            <p class="mb-0 mt-1"><strong>GSTIN:</strong> 33ABCDE1234F1Z5</p>
+        </div>
+        <div class="col-sm-4 text-sm-end mt-3 mt-sm-0">
+            <h3 class="text-uppercase text-muted fw-bold tracking-wide">Tax Invoice</h3>
+            <p class="mb-0"><strong>Invoice No:</strong> <span class="text-dark fw-bold">{{ invoice.invoice_number }}</span></p>
+            <p class="mb-0"><strong>Date:</strong> {{ invoice.date_created|date:"d-M-Y" }}</p>
+            <p class="mb-0"><strong>Time:</strong> {{ invoice.date_created|date:"h:i A" }}</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-3 bg-light border rounded">
+                <h6 class="text-uppercase text-muted fw-bold mb-2" style="font-size: 0.8rem;">Billed To:</h6>
+                <h5 class="fw-bold mb-1">{{ invoice.customer.name }}</h5>
+                <p class="mb-0 text-muted"><strong>Phone:</strong> +91 {{ invoice.customer.phone_number }}</p>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-invoice mb-4">
+        <thead>
+            <tr>
+                <th class="text-center" style="width: 50px;">S.No</th>
+                <th>Item Description</th>
+                <th class="text-center">HSN</th>
+                <th class="text-center">GST %</th>
+                <th class="text-center">Qty</th>
+                <th class="text-end">Rate (₹)</th>
+                <th class="text-end">Amount (₹)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td class="text-center">{{ forloop.counter }}</td>
+                <td class="fw-medium">{{ item.product.name }}</td>
+                <td class="text-center">{{ item.product.hsn_code }}</td>
+                <td class="text-center">{{ item.product.gst_rate }}%</td>
+                <td class="text-center fw-bold">{{ item.quantity }}</td>
+                <td class="text-end">{{ item.price_at_sale }}</td>
+                <td class="text-end text-dark fw-bold">{% widthratio item.quantity 1 item.price_at_sale %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="row mt-4 mb-4">
+        
+        <div class="col-sm-7 terms-box pt-2">
+            <h6 class="text-dark fw-bold mb-1">Terms & Conditions:</h6>
+            <ol class="ps-3 mb-0">
+                <li>Goods once sold will not be taken back or exchanged.</li>
+                <li>All disputes are subject to Coimbatore jurisdiction only.</li>
+                <li>Ensure colors are checked before mixing; no complaints entertained after application.</li>
+            </ol>
+        </div>
+
+        <div class="col-sm-5">
+            <table class="table table-sm table-borderless mb-0">
+                <tr>
+                    <td class="text-end text-muted">Sub-Total:</td>
+                    <td class="text-end fw-medium" style="width: 120px;">₹{{ invoice.sub_total }}</td>
+                </tr>
+                <tr>
+                    <td class="text-end text-muted">Discount Applied:</td>
+                    <td class="text-end text-danger fw-medium">- ₹{{ invoice.discount_amount }}</td>
+                </tr>
+                
+                <tr class="border-top">
+                    <td class="text-end text-muted small pt-2">Includes CGST:</td>
+                    <td class="text-end text-muted small pt-2">₹{{ cgst|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td class="text-end text-muted small pb-2">Includes SGST:</td>
+                    <td class="text-end text-muted small pb-2">₹{{ sgst|floatformat:2 }}</td>
+                </tr>
+
+                <tr class="border-top border-dark border-2">
+                    <td class="text-end fs-5 fw-bold text-dark pt-2">Grand Total:</td>
+                    <td class="text-end fs-5 fw-bold text-success pt-2">₹{{ invoice.final_amount }}</td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+
+    <div class="row align-items-start mt-5">
+        <div class="col-6 text-center">
+            <div class="signature-box text-dark pt-1">
+                Customer Signature
+            </div>
+        </div>
+        <div class="col-6 text-center">
+            <div class="signature-box text-dark pt-1">
+                Authorized Signatory<br>
+                <small class="text-muted">For Color World</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-5 pt-3 border-top text-muted small">
+        Thank you for your business! Have a colorful day.
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+# Python / Django
+__pycache__/
+*.py[cod]
+*$py.class
+
+# CRITICAL: Do NOT upload the database to the internet!
+*.sqlite3
+db.sqlite3
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Static files and User Uploads
+/staticfiles/
+/media/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
